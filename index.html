@@ -22,8 +22,8 @@ input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid v
 ul{list-style:none;margin:0;padding:0}li{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}li:last-child{border:0}
 .x{font:inherit;font-size:13px;color:var(--mut);background:none;border:0;cursor:pointer}
 .qr{display:flex;justify-content:center;padding:10px;background:#fff;border-radius:8px;margin:8px 0}.qr img,.qr canvas{max-width:100%;height:auto}
-.cg{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:8px 0}
-.cc{height:38px;border:1px solid var(--line);border-radius:6px;background:var(--bg);cursor:pointer}.cc.on{background:var(--acc);border-color:var(--acc)}
+.cg{display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin:8px 0}
+.cc{height:34px;border:1px solid var(--line);border-radius:6px;background:var(--bg);cursor:pointer}.cc.on{background:var(--acc);border-color:var(--acc)}
 .top{display:flex;justify-content:space-between;color:var(--mut);margin:4px 2px 8px}
 .cur{text-align:center}.big{font-size:84px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
 .bd{display:grid;grid-template-columns:repeat(10,1fr);gap:3px;margin:0 0 12px}
@@ -62,7 +62,7 @@ function ticket(){for(;;){
     const n=sh(p).slice(0,s.length).sort((a,b)=>a-b);s.forEach((r,q)=>t[r][j]=n[q])});
   return t}}
 const slots=t=>t.map(r=>r.filter(x=>x));
-function hit(p,t,ok){const sl=slots(t);return p.n?sl.flat().filter(x=>ok.has(x)).length>=p.n:p.s.every(([r,k])=>ok.has(sl[r][k]))}
+function hit(p,t,ok){if(p.c)return p.c.every(([r,k])=>!t[r][k]||ok.has(t[r][k]));const sl=slots(t);return p.n?sl.flat().filter(x=>ok.has(x)).length>=p.n:p.s.every(([r,k])=>ok.has(sl[r][k]))}
 
 /* ---------- room connection ---------- */
 const SIG='wss://tambola-signal.a1265v.workers.dev/ws';
@@ -159,7 +159,7 @@ function resetHost(){H={peers:{},cards:2,to:60,prizes:[],run:0};DEF.forEach(addP
 function addPre(k){const c=H.prizes.filter(p=>p.base==k).length;H.prizes.push({name:c?k+' #'+(c+1):k,base:k,pat:PRE[k],winners:[],at:-1})}
 function tg(x){S.cu.has(x)?S.cu.delete(x):S.cu.add(x);render()}
 function customAdd(){if(!S.cu.size)return toast('Select at least one square');
-  H.prizes.push({name:(S.cn||'').trim()||'Custom pattern',pat:{s:[...S.cu].map(x=>x.split(',').map(Number))},winners:[],at:-1});S.cu=new Set();S.cn='';render()}
+  H.prizes.push({name:(S.cn||'').trim()||'Custom pattern',pat:{c:[...S.cu].map(x=>x.split(',').map(Number))},winners:[],at:-1});S.cu=new Set();S.cn='';render()}
 function go(){if(!S.name.trim())return toast('Enter your name first');S.name=S.name.trim();S.screen='wait';render();connect()}
 
 /* ---------- toast ---------- */
@@ -179,8 +179,8 @@ function vLobby(){
 <div><label for="to">Max wait per number (seconds)</label><input id="to" type="number" min="10" max="300" value="${H.to}" onchange="H.to=Math.max(10,Math.min(300,+this.value||60))"></div></div></div>`;
   x+=`<div class="card"><h3>Prizes</h3><ul>${H.prizes.map((p,i)=>`<li><span>${esc(p.name)}</span><button class="x" onclick="H.prizes.splice(${i},1);render()">Remove</button></li>`).join('')||'<li>No prizes yet</li>'}</ul>
 <label for="ps">Add a standard prize</label><div class="row"><select id="ps">${Object.keys(PRE).map(k=>`<option>${k}</option>`).join('')}</select><button class="btn" style="margin:0" onclick="addPre($('#ps').value);render()">Add</button></div>
-<label>Custom pattern</label><p style="margin:0">Pick the numbers that must be crossed out. Each ticket row has 5 numbers, left to right.</p>
-<div class="cg">${[0,1,2].map(r=>[0,1,2,3,4].map(k=>`<button class="cc ${S.cu.has(r+','+k)?'on':''}" aria-label="Row ${r+1}, number ${k+1}" onclick="tg('${r},${k}')"></button>`).join('')).join('')}</div>
+<label>Custom pattern</label><p style="margin:0">Pick the squares that must be crossed out. A square that is blank on a player’s ticket counts as crossed out.</p>
+<div class="cg">${[0,1,2].map(r=>[0,1,2,3,4,5,6,7,8].map(k=>`<button class="cc ${S.cu.has(r+','+k)?'on':''}" aria-label="Row ${r+1}, column ${k+1}" onclick="tg('${r},${k}')"></button>`).join('')).join('')}</div>
 <input placeholder="Pattern name" maxlength="30" value="${esc(S.cn||'')}" oninput="S.cn=this.value"><button class="btn" onclick="customAdd()">Add custom prize</button></div>`;
   return x+`<button class="btn pri" style="width:100%;padding:14px" onclick="startGame()">Start game</button>`}
 function vGame(){
