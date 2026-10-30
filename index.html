@@ -65,7 +65,7 @@ const slots=t=>t.map(r=>r.filter(x=>x));
 function hit(p,t,ok){const sl=slots(t);return p.n?sl.flat().filter(x=>ok.has(x)).length>=p.n:p.s.every(([r,k])=>ok.has(sl[r][k]))}
 
 /* ---------- room connection ---------- */
-const SIG='wss://YOUR-WORKER.workers.dev/ws';
+const SIG='wss://tambola-signal.a1265v.workers.dev/ws';
 let W,me,hostId;C={q:[]};
 const nm=id=>id=='H'?S.name:H.peers[id].name;
 const plist=()=>[{id:'H',name:S.name},...Object.entries(H.peers).filter(([,p])=>p.up).map(([id,p])=>({id,name:p.name}))];
